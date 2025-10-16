@@ -134,10 +134,10 @@ mvn exec:java -Dexec.mainClass="com.javarush.telegram.TinderBoltApp"
 
 ## 👨‍💻 Автор
 
-**Ваше Имя** 
+**Наталья Кулькова** 
 - Участник марафона JavaRush
-- Telegram: [@your_username]
-- GitHub: [Ваш аккаунт]
+- Telegram: [@kyNATAky]
+- GitHub: [[Профиль](https://github.com/TestQAnata)]
 
 ## 📄 Лицензия
 
