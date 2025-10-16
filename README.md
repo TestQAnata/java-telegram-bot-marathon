@@ -1,3 +1,6 @@
+![Marathon Completed](https://img.shields.io/badge/Marathon-Completed-success)
+![JavaRush](https://img.shields.io/badge/JavaRush-Maratathon-orange)
+
 # 🤖 Java Telegram Tinder Bot
 
 ![Java](https://img.shields.io/badge/Java-17+-orange)
