@@ -26,6 +26,12 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         super(TELEGRAM_BOT_NAME, TELEGRAM_BOT_TOKEN);
     }
 
+    private UserInfo me;
+
+    private UserInfo he;
+
+    private int questionCount;
+
     @Override
     public void onUpdateEventReceived(Update update) {
         //TODO: основной функционал бота будем писать здесь
@@ -38,7 +44,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             sendTextMessage(text);
 
             showMainMenu("главное меню бота", "/start",
-                         "генерация Tinder-профля \uD83D\uDE0E", "/profile",
+                         "генерация Tinder-профиля \uD83D\uDE0E", "/profile",
                          "сообщение для знакомства \uD83E\uDD70", "/opener",
                          "переписка от вашего имени \uD83D\uDE08", "/message",
                          "переписка со звездами \uD83D\uDD25", "/date",
@@ -54,7 +60,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             return;
         }
 
-        if (currentMode == DialogMode.GPT) {
+        if (currentMode == DialogMode.GPT && !isMessageCommand()) {
             String prompt = loadPrompt("gpt");
             String answer = chatGPT.sendMessage(prompt, message);
             sendTextMessage(answer);
@@ -74,7 +80,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             return;
         }
 
-        if (currentMode == DialogMode.DATE){
+        if (currentMode == DialogMode.DATE && !isMessageCommand()){
             String query = getCallbackQueryButtonKey();
             if (query.startsWith("date_")) {
                 sendPhotoMessage(query);
@@ -100,7 +106,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             return;
         }
 
-        if(currentMode == DialogMode.MESSAGE){
+        if(currentMode == DialogMode.MESSAGE && !isMessageCommand()){
             String query = getCallbackQueryButtonKey();
             if (query.startsWith("message_")){
                 String prompt = loadPrompt(query);
@@ -113,6 +119,105 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             }
 
             list.add(message);
+            return;
+        }
+
+        //command PROFILE
+        if (message.equals("/profile")){
+            currentMode = DialogMode.PROFILE;
+            sendPhotoMessage("profile");
+
+            me = new UserInfo();
+            questionCount = 1;
+            sendTextMessage("Сколько вам лет?");
+            return;
+        }
+
+        if(currentMode == DialogMode.PROFILE && !isMessageCommand()) {
+            switch (questionCount){
+                case 1:
+                    me.age = message;
+                    questionCount=2;
+                    sendTextMessage("Кем вы работаете?");
+                    return;
+                case 2:
+                    me.occupation = message;
+                    questionCount=3;
+                    sendTextMessage("Есть ли у вас хобби?");
+                    return;
+                case 3:
+                    me.hobby = message;
+                    questionCount=4;
+                    sendTextMessage("Что вам не нравится в людях?");
+                    return;
+                case 4:
+                    me.annoys = message;
+                    questionCount=5;
+                    sendTextMessage("Цели знакомства?");
+                    return;
+                case 5:
+                    me.goals = message;
+
+                    String aboutMyself = me.toString();
+                    String prompt = loadPrompt("profile");
+                    Message nsg = sendTextMessage("Подождите пару секунд - ChatGPT \uD83E\uDDE0 думает...");
+                    String answer = chatGPT.sendMessage(prompt, aboutMyself);
+                    updateTextMessage(nsg, answer);
+                    return;
+
+            }
+
+            return;
+        }
+
+        //command OPENER
+        if (message.equals("/opener")){
+            currentMode = DialogMode.OPENER;
+            sendPhotoMessage("opener");
+
+            he = new UserInfo();
+            questionCount = 1;
+            sendTextMessage("Имя мужчины?");
+            return;
+        }
+
+        if (currentMode == DialogMode.OPENER && !isMessageCommand()){
+            switch (questionCount){
+                case 1:
+                    he.name = message;
+                    questionCount = 2;
+                    sendTextMessage("Сколько ему лет?");
+                    return;
+                case 2:
+                    he.age = message;
+                    questionCount = 3;
+                    sendTextMessage("Есть ли у него хобби и какие?");
+                    return;
+                case 3:
+                    he.hobby = message;
+                    questionCount = 4;
+                    sendTextMessage("Кем он работает?");
+                    return;
+                case 4:
+                    he.occupation = message;
+                    questionCount = 5;
+                    sendTextMessage("Цель знакомства?");
+                    return;
+                case 5:
+                    he.goals = message;
+
+                    String aboutFriend = he.toString();
+                    String prompt = loadPrompt("opener");
+                    Message nsg = sendTextMessage("Подождите пару секунд - ChatGPT \uD83E\uDDE0 думает...");
+                    String answer = chatGPT.sendMessage(prompt, aboutFriend);
+                    updateTextMessage(nsg, answer);
+                    return;
+            }
+            String aboutFriend = message;
+            String prompt = loadPrompt("opener");
+            Message nsg = sendTextMessage("Подождите пару секунд - ChatGPT \uD83E\uDDE0 думает...");
+            String answer = chatGPT.sendMessage(prompt, aboutFriend);
+            updateTextMessage(nsg, answer);
             return;
         }
 
